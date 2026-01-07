@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZAY GYI 2D FREE</title>
+    <style>
+        :root {
+            /* Light Mode Variables */
+            --bg-color: #f0f4f8;
+            --text-color: #333333;
+            --primary-blue: #0066cc;
+            --card-bg: #ffffff;
+            --card-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --header-text: #ffffff;
+            --accent-blue: #e3efff;
+            --status-bg: #ffeb3b;
+            --status-text: #555;
+            --slot-badge-bg: #28a745;
+        }
+
+        [data-theme="dark"] {
+            /* Dark Mode Variables */
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --primary-blue: #1565c0;
+            --card-bg: #1e1e1e;
+            --card-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            --header-text: #ffffff;
+            --accent-blue: #2c3e50;
+            --status-bg: #f57f17;
+            --status-text: #fff;
+            --slot-badge-bg: #00c853;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        /* Header */
+        header {
+            width: 100%;
+            max-width: 480px;
+            background-color: var(--primary-blue);
+            color: var(--header-text);
+            padding: 20px 0;
+            text-align: center;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        /* Main Container */
+        .container {
+            width: 100%;
+            max-width: 480px;
+            padding: 0 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Date Display */
+        .date-box {
+            background-color: var(--card-bg);
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: var(--card-shadow);
+            border: 2px solid var(--primary-blue);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .time-slot-badge {
+            background-color: var(--slot-badge-bg);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+
+        /* Message Display */
+        .message-box {
+            background-color: var(--status-bg);
+            color: var(--status-text);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: none; /* Hidden by default */
+            box-shadow: var(--card-shadow);
+        }
+
+        /* Top Grid (2D Cards) */
+        .top-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .number-card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 1 / 1;
+        }
+
+        .number-card .digit {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--text-color);
+            z-index: 2;
+        }
+
+        .number-card .bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 15px;
+            background-color: var(--primary-blue);
+        }
+
+        /* Bottom Section (Boards) */
+        .bottom-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .board-label {
+            color: var(--text-color);
+            font-weight: 800;
+            font-size: 1.2rem;
+            margin-top: 5px;
+            margin-bottom: -5px;
+            padding-left: 5px;
+        }
+
+        .big-board-card {
+            background-color: var(--primary-blue);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--card-shadow);
+        }
+
+        .box-container {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            justify-content: space-around;
+        }
+
+        .white-box {
+            background-color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333; /* Always dark text inside white box */
+        }
+        
+        /* Utility */
+        .hidden {
+            display: none !important;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>ZAY GYI 2D FREE</h1>
+        <button id="themeToggle" class="theme-toggle">☀️ / 🌙</button>
+    </header>
+
+    <div class="container">
+        <!-- Date & Time Slot -->
+        <div class="date-box">
+            <span id="currentDate">Loading...</span>
+            <span id="timeSlotBadge" class="time-slot-badge">...</span>
+        </div>
+
+        <!-- System Message (Closed / No Result) -->
+        <div id="systemMessage" class="message-box"></div>
+
+        <!-- Game Content -->
+        <div id="gameContent">
+            <!-- Top Section: 4 Random 2D Cards -->
+            <div class="top-grid">
+                <div class="number-card">
+                    <span class="digit" id="top1">--</span>
+                    <div class="bar"></div>
+                </div>
+                <div class="number-card">
+                    <span class="digit" id="top2">--</span>
+                    <div class="bar"></div>
+                </div>
+                <div class="number-card">
+                    <span class="digit" id="top3">--</span>
+                    <div class="bar"></div>
+                </div>
+                <div class="number-card">
+                    <span class="digit" id="top4">--</span>
+                    <div class="bar"></div>
+                </div>
+            </div>
+
+            <!-- Bottom Section: 4 Big Horizontal Boards -->
+            <div class="bottom-section">
+                
+                <div class="board-label">MAIN</div>
+                <!-- Main 1 -->
+                <div class="big-board-card">
+                    <div class="box-container" id="mainRow1">
+                        <div class="white-box">-</div>
+                        <div class="white-box">-</div>
+                        <div class="white-box">-</div>
+                    </div>
+                </div>
+                <!-- Main 2 -->
+                <div class="big-board-card">
+                    <div class="box-container" id="mainRow2">
+                        <div class="white-box">-</div>
+                        <div class="white-box">-</div>
+                        <div class="white-box">-</div>
+                    </div>
+                </div>
+
+                <div class="board-label">YAN</div>
+                <!-- Yan 1 -->
+                <div class="big-board-card">
+                    <div class="box-container" id="yanRow1">
+                        <div class="white-box">-</div>
+                        <div class="white-box">-</div>
+                        <div class="white-box">-</div>
+                    </div>
+                </div>
+                <!-- Yan 2 -->
+                <div class="big-board-card">
+                    <div class="box-container" id="yanRow2">
+                        <div class="white-box">-</div>
+                        <div class="white-box">-</div>
+                        <div class="white-box">-</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // CONFIGURATION & CONSTANTS
+        // ==========================================
+        const TIMEZONE = 'Asia/Yangon'; // Myanmar Time
+        const STORAGE_PREFIX = 'zaygyi_';
+        
+        // Time Constraints (24h format)
+        const MORNING_START_H = 6;
+        const MORNING_START_M = 0;
+        const MORNING_END_H = 11;
+        const MORNING_END_M = 50;
+
+        const AFTERNOON_START_H = 13;
+        const AFTERNOON_START_M = 0;
+        const AFTERNOON_END_H = 16;
+        const AFTERNOON_END_M = 30;
+
+        // ==========================================
+        // STATE MANAGEMENT
+        // ==========================================
+        const appState = {
+            theme: localStorage.getItem(`${STORAGE_PREFIX}theme`) || 'auto',
+            storedDate: localStorage.getItem(`${STORAGE_PREFIX}date`),
+            storedSlot: localStorage.getItem(`${STORAGE_PREFIX}slot`),
+            storedNumbers: JSON.parse(localStorage.getItem(`${STORAGE_PREFIX}numbers`) || 'null')
+        };
+
+        // ==========================================
+        // THEME LOGIC
+        // ==========================================
+        function initTheme() {
+            const hour = getMyanmarTime().getHours();
+            
+            // If user has manually set a theme, prioritize it
+            if (appState.theme !== 'auto') {
+                document.documentElement.setAttribute('data-theme', appState.theme);
+                return;
+            }
+
+            // Auto logic: Dark mode after 6 PM (18:00) until 6 AM
+            if (hour >= 18 || hour < 6) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const newTheme = current === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            appState.theme = newTheme;
+            localStorage.setItem(`${STORAGE_PREFIX}theme`, newTheme);
+        }
+
+        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
+        // ==========================================
+        // TIME & DATE LOGIC (Myanmar Specific)
+        // ==========================================
+        function getMyanmarTime() {
+            // Create a date object from the current time string in Myanmar timezone
+            const now = new Date();
+            const mmTimeString = now.toLocaleString('en-US', { timeZone: TIMEZONE });
+            return new Date(mmTimeString);
+        }
+
+        function formatDate(date) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric', weekday: 'long' };
+            return date.toLocaleDateString('en-US', options);
+        }
+
+        function getCurrentSlot(date) {
+            const h = date.getHours();
+            const m = date.getMinutes();
+            const totalMinutes = h * 60 + m;
+            
+            const mStart = MORNING_START_H * 60 + MORNING_START_M;
+            const mEnd = MORNING_END_H * 60 + MORNING_END_M;
+            
+            const aStart = AFTERNOON_START_H * 60 + AFTERNOON_START_M;
+            const aEnd = AFTERNOON_END_H * 60 + AFTERNOON_END_M;
+
+            if (totalMinutes >= mStart && totalMinutes < aStart) {
+                // Technically 11:51 - 12:59 is a gap, but usually displayed as Morning result
+                return 'MORNING'; 
+            } else if (totalMinutes >= aStart && totalMinutes <= aEnd) {
+                return 'AFTERNOON';
+            } else if (totalMinutes > aEnd) {
+                return 'CLOSED';
+            } else {
+                // Before 6 AM
+                return 'WAITING';
+            }
+        }
+
+        // ==========================================
+        // GAME LOGIC
+        // ==========================================
+        function generateRandomNumbers() {
+            // Generate Top 4 (00-99)
+            const top = [];
+            for(let i=0; i<4; i++) {
+                let num = Math.floor(Math.random() * 100);
+                top.push(num < 10 ? `0${num}` : `${num}`);
+            }
+
+            // Generate Bottom 4 rows x 3 digits (0-9)
+            const bottom = [];
+            for(let i=0; i<4; i++) {
+                let row = [];
+                for(let j=0; j<3; j++) {
+                    row.push(Math.floor(Math.random() * 10));
+                }
+                bottom.push(row);
+            }
+
+            return { top, bottom };
+        }
+
+        function renderNumbers(data) {
+            if(!data) return;
+
+            // Top Cards
+            document.getElementById('top1').textContent = data.top[0];
+            document.getElementById('top2').textContent = data.top[1];
+            document.getElementById('top3').textContent = data.top[2];
+            document.getElementById('top4').textContent = data.top[3];
+
+            // Bottom Rows Helper
+            const fillRow = (rowId, numbers) => {
+                const container = document.getElementById(rowId);
+                container.innerHTML = '';
+                numbers.forEach(num => {
+                    const div = document.createElement('div');
+                    div.className = 'white-box';
+                    div.textContent = num;
+                    container.appendChild(div);
+                });
+            };
+
+            fillRow('mainRow1', data.bottom[0]);
+            fillRow('mainRow2', data.bottom[1]);
+            fillRow('yanRow1', data.bottom[2]);
+            fillRow('yanRow2', data.bottom[3]);
+        }
+
+        function saveToStorage(dateStr, slot, numbers) {
+            localStorage.setItem(`${STORAGE_PREFIX}date`, dateStr);
+            localStorage.setItem(`${STORAGE_PREFIX}slot`, slot);
+            localStorage.setItem(`${STORAGE_PREFIX}numbers`, JSON.stringify(numbers));
+        }
+
+        function clearStorage() {
+            localStorage.removeItem(`${STORAGE_PREFIX}date`);
+            localStorage.removeItem(`${STORAGE_PREFIX}slot`);
+            localStorage.removeItem(`${STORAGE_PREFIX}numbers`);
+        }
+
+        // ==========================================
+        // MAIN APP LOOP
+        // ==========================================
+        function updateApp() {
+            const now = getMyanmarTime();
+            const dateStr = now.toDateString(); // "Wed Jan 01 2025"
+            const dayOfWeek = now.getDay(); // 0 = Sun, 6 = Sat
+            const slot = getCurrentSlot(now);
+
+            // Update Header Date
+            document.getElementById('currentDate').textContent = formatDate(now);
+            
+            const messageBox = document.getElementById('systemMessage');
+            const gameContent = document.getElementById('gameContent');
+            const badge = document.getElementById('timeSlotBadge');
+
+            // 1. Check Weekend
+            if (dayOfWeek === 0 || dayOfWeek === 6) {
+                messageBox.style.display = 'block';
+                messageBox.textContent = "Today No 2D Result";
+                gameContent.classList.add('hidden');
+                badge.textContent = "WEEKEND";
+                badge.style.backgroundColor = "#999";
+                clearStorage();
+                return;
+            }
+
+            // 2. Check Closed Time (After 4:30 PM)
+            if (slot === 'CLOSED') {
+                messageBox.style.display = 'block';
+                messageBox.textContent = "2D Closed for Today";
+                gameContent.classList.add('hidden');
+                badge.textContent = "CLOSED";
+                badge.style.backgroundColor = "#f44336";
+                // Keep data in storage for reference until next day, but hide UI
+                return;
+            }
+
+            // 3. Pre-Morning (Before 6 AM)
+            if (slot === 'WAITING') {
+                messageBox.style.display = 'block';
+                messageBox.textContent = "Waiting for 6:00 AM";
+                gameContent.classList.add('hidden');
+                badge.textContent = "WAITING";
+                badge.style.backgroundColor = "#999";
+                clearStorage(); // New day reset
+                return;
+            }
+
+            // 4. Active Game Time (Morning or Afternoon)
+            messageBox.style.display = 'none';
+            gameContent.classList.remove('hidden');
+            
+            // Badge Logic
+            if (slot === 'MORNING') {
+                badge.textContent = "MORNING (12:00 PM)";
+            } else {
+                badge.textContent = "AFTERNOON (4:30 PM)";
+            }
+            badge.style.backgroundColor = "#28a745";
+
+            // 5. Number Generation & Persistence Logic
+            // Check if we already have numbers for TODAY and THIS SLOT
+            const isSameDate = appState.storedDate === dateStr;
+            const isSameSlot = appState.storedSlot === slot;
+
+            if (isSameDate && isSameSlot && appState.storedNumbers) {
+                // Load from storage
+                renderNumbers(appState.storedNumbers);
+            } else {
+                // Generate NEW numbers
+                // If it's the "gap" time (11:51-12:59), we might want to keep Morning numbers
+                // But simplified logic: if slot changed to Afternoon, gen new.
+                // If slot is Morning and we have no numbers, gen new.
+                
+                const newNumbers = generateRandomNumbers();
+                
+                // Update State
+                appState.storedDate = dateStr;
+                appState.storedSlot = slot;
+                appState.storedNumbers = newNumbers;
+                
+                // Save & Render
+                saveToStorage(dateStr, slot, newNumbers);
+                renderNumbers(newNumbers);
+            }
+        }
+
+        // ==========================================
+        // INITIALIZATION
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            updateApp(); // Run immediately
+            
+            // Check time every minute to update status/slots
+            setInterval(() => {
+                updateApp();
+                // Auto theme check (only if set to auto)
+                if (localStorage.getItem(`${STORAGE_PREFIX}theme`) !== 'light' && localStorage.getItem(`${STORAGE_PREFIX}theme`) !== 'dark') {
+                   initTheme();
+                }
+            }, 60000);
+        });
+
+    </script>
+</body>
+</html>
+
+      
